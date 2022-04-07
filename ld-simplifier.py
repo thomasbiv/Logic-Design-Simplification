@@ -2,6 +2,8 @@ import math
 from re import L
 from tkinter import ACTIVE
 
+from numpy import ones_like
+
 
 IN_NUM = 0
 OUT_NUM = 0
@@ -107,6 +109,28 @@ def logicEquation():
                     else:
                         print("In" + str(bit + 1) + " ", end = "")
         print(" = Out" + str(group + 1))
+        print(ACTIVE_INS)
+        #CALL SIMPLIFICATION FUNCTION HERE 
+        quine_mccluskey()
+
+
+
+def quine_mccluskey():
+    for set in range(len(ACTIVE_INS)):
+        groups = []
+        #INITIALIZE ALL POSSIBLE GROUPS
+        for num in range(IN_NUM + 1):
+            group = []
+            groups.append(group)
+        #LOCATE ONES
+        for value in range(len(ACTIVE_INS[set])):
+            one_count = 0
+            for bit in range(len(ACTIVE_INS[set][value])):
+                if ACTIVE_INS[set][value][bit] == '1':
+                    one_count = one_count + 1
+        groups[one_count].append(ACTIVE_INS[set][value])
+        print(groups)
+
 
 
 
