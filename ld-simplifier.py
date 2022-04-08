@@ -111,25 +111,24 @@ def logicEquation():
         print(" = Out" + str(group + 1))
         print(ACTIVE_INS)
         #CALL SIMPLIFICATION FUNCTION HERE 
-        quine_mccluskey()
+        quineMcCluskey(group)
 
 
 
-def quine_mccluskey():
-    for set in range(len(ACTIVE_INS)):
-        groups = []
-        #INITIALIZE ALL POSSIBLE GROUPS
-        for num in range(IN_NUM + 1):
-            group = []
-            groups.append(group)
-        #LOCATE ONES
-        for value in range(len(ACTIVE_INS[set])):
-            one_count = 0
-            for bit in range(len(ACTIVE_INS[set][value])):
-                if ACTIVE_INS[set][value][bit] == '1':
-                    one_count = one_count + 1
-        groups[one_count].append(ACTIVE_INS[set][value])
-        print(groups)
+def quineMcCluskey(group):
+    groups = []
+    #INITIALIZE ALL POSSIBLE GROUPS
+    for num in range(IN_NUM + 1):
+        set = []
+        groups.append(set)
+    #LOCATE ONES IN MINTERMS AND ORGANIZE INTO GROUPS
+    for value in range(len(ACTIVE_INS[group])):
+        one_count = 0
+        for bit in range(len(ACTIVE_INS[group][value])):
+            if ACTIVE_INS[group][value][bit] == '1':
+                one_count = one_count + 1
+        groups[one_count].append(ACTIVE_INS[group][value])
+    print(groups)
 
 
 
