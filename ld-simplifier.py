@@ -109,7 +109,7 @@ def logicEquation():
                     else:
                         print("In" + str(bit + 1) + " ", end = "")
         print(" = Out" + str(group + 1))
-        print(ACTIVE_INS)
+        #print(ACTIVE_INS)
         #CALL SIMPLIFICATION FUNCTION HERE 
         quineMcCluskey(group)
 
@@ -121,6 +121,7 @@ def quineMcCluskey(group):
     for num in range(IN_NUM + 1):
         set = []
         groups.append(set)
+
     #LOCATE ONES IN MINTERMS AND ORGANIZE INTO GROUPS
     for value in range(len(ACTIVE_INS[group])):
         one_count = 0
@@ -129,6 +130,28 @@ def quineMcCluskey(group):
                 one_count = one_count + 1
         groups[one_count].append(ACTIVE_INS[group][value])
     print(groups)
+
+    #BEGIN FINDING MATCHED PAIRS
+    diff_count = 0
+    matched_pairs = []
+    for each_group in range(len(groups)):
+        if (each_group == len(groups) - 1): #IF LAST GROUP, BREAK
+            break
+        else:
+            for val in range(len(groups[each_group])):
+                for next_val in range(len(groups[each_group + 1])):
+                    diff_count = 0
+                    for bit in range(len(groups[each_group][val])):
+                        if groups[each_group][val][bit] != groups[each_group + 1][next_val][bit]:
+                            diff_count = diff_count + 1
+                            #TRACK INVOLVED MINTERMS SOMEHOW IN THIS SECTION
+                            #ALSO REPLACE INVOLVED BIT WITH "-" IN THIS SECTION (MAYBE APPEND TO NEW ARRAY)
+                    if diff_count == 1:
+                        matched_pairs.append([groups[each_group][val], groups[each_group + 1][next_val]])
+    print(matched_pairs)
+
+
+
 
 
 
