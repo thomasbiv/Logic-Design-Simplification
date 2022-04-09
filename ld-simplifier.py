@@ -117,6 +117,7 @@ def logicEquation():
 
 def quineMcCluskey(group):
     groups = []
+    #tracking = []
     #INITIALIZE ALL POSSIBLE GROUPS
     for num in range(IN_NUM + 1):
         set = []
@@ -128,7 +129,7 @@ def quineMcCluskey(group):
         for bit in range(len(ACTIVE_INS[group][value])):
             if ACTIVE_INS[group][value][bit] == '1':
                 one_count = one_count + 1
-        groups[one_count].append(ACTIVE_INS[group][value])
+        groups[one_count].append([str(int(ACTIVE_INS[group][value], 2)), ACTIVE_INS[group][value]])
     print(groups)
 
     #BEGIN FINDING MATCHED PAIRS
@@ -141,14 +142,21 @@ def quineMcCluskey(group):
             for val in range(len(groups[each_group])):
                 for next_val in range(len(groups[each_group + 1])):
                     diff_count = 0
-                    for bit in range(len(groups[each_group][val])):
-                        if groups[each_group][val][bit] != groups[each_group + 1][next_val][bit]:
+                    for bit in range(len(groups[each_group][val][1])):
+                        if groups[each_group][val][1][bit] != groups[each_group + 1][next_val][1][bit]:
                             diff_count = diff_count + 1
-                            #TRACK INVOLVED MINTERMS SOMEHOW IN THIS SECTION
-                            #ALSO REPLACE INVOLVED BIT WITH "-" IN THIS SECTION (MAYBE APPEND TO NEW ARRAY)
+                            stored_diff_bit = bit
                     if diff_count == 1:
-                        matched_pairs.append([groups[each_group][val], groups[each_group + 1][next_val]])
+                        #ORGANIZE MATCHED PAIRS BY ONES GROUPS AGAIN / STANDARDIZE DASHING TO MAKE pairMatching FUNCTION
+                        replacement = groups[each_group][val][1][:stored_diff_bit]+'-'+groups[each_group][val][1][stored_diff_bit+1:]
+                        matched_pairs.append([str(int(groups[each_group][val][1], 2)) + '-' + str(int(groups[each_group + 1][next_val][1], 2)), replacement])
+
     print(matched_pairs)
+    #print(tracking)
+
+
+#def pairMatching(groups):
+#    
 
 
 
