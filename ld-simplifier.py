@@ -2,8 +2,6 @@ import math
 from re import L
 from tkinter import ACTIVE
 
-from numpy import ones_like
-
 
 IN_NUM = 0
 OUT_NUM = 0
@@ -47,6 +45,8 @@ def main():
     
 
 
+
+
 def truthTable():
     #TRUTH TABLE HEADER
     for inp in range(IN_NUM):
@@ -76,6 +76,8 @@ def truthTable():
             else:
                 print("|   " + str(OUTPUTS[outCol][row]) + "   |", end = "")
                 outCol = outCol + 1 #MOVE TO THE OTHER ARRAY (OTHER OUTPUT)
+
+
 
 
 
@@ -115,24 +117,13 @@ def logicEquation():
 
 
 
+
+
 def quineMcCluskey(group):
-    groups = []
-    #tracking = []
-    #INITIALIZE ALL POSSIBLE GROUPS
-    for num in range(IN_NUM + 1):
-        set = []
-        groups.append(set)
+    #GROUP ACTIVE INPUTS BY # OF ONES
+    groups = firstGrouping(ACTIVE_INS[group])
 
-    #LOCATE ONES IN MINTERMS AND ORGANIZE INTO GROUPS
-    for value in range(len(ACTIVE_INS[group])):
-        one_count = 0
-        for bit in range(len(ACTIVE_INS[group][value])):
-            if ACTIVE_INS[group][value][bit] == '1':
-                one_count = one_count + 1
-        groups[one_count].append([str(int(ACTIVE_INS[group][value], 2)), ACTIVE_INS[group][value]])
-    print(groups)
-
-    #BEGIN FINDING MATCHED PAIRS
+    #BEGIN FINDING MATCHED PAIRS (FIRST MP)
     diff_count = 0
     matched_pairs = []
     for each_group in range(len(groups)):
@@ -147,16 +138,56 @@ def quineMcCluskey(group):
                             diff_count = diff_count + 1
                             stored_diff_bit = bit
                     if diff_count == 1:
-                        #ORGANIZE MATCHED PAIRS BY ONES GROUPS AGAIN / STANDARDIZE DASHING TO MAKE pairMatching FUNCTION
                         replacement = groups[each_group][val][1][:stored_diff_bit]+'-'+groups[each_group][val][1][stored_diff_bit+1:]
-                        matched_pairs.append([str(int(groups[each_group][val][1], 2)) + '-' + str(int(groups[each_group + 1][next_val][1], 2)), replacement])
-
+                        #matched_pairs.append([str(int(groups[each_group][val][1], 2)) + '-' + str(int(groups[each_group + 1][next_val][1], 2)), replacement])
+                        matched_pairs.append([groups[each_group][val][0] + '-' + groups[each_group + 1][next_val][0], replacement])
+                        #matched_pairs.append([new_groups[each_new_group][val][0] + '-' + new_groups[each_new_group + 1][next_val][0], replacement]) <-- Would this work?!
     print(matched_pairs)
-    #print(tracking)
+    new_groups = otherGrouping(matched_pairs)
+    #CALL NEW MATCHED PAIRS FUNCTION OVER AND OVER AGAIN UNTIL NO MORE MATCHED PAIRS (OTHER MP (Lines 126 - 146)) ?? = otherMatchedPairs(new_groups)
+    #How is keeping track of the prime implicants of older matched pairs done?  
 
 
-#def pairMatching(groups):
-#    
+
+
+
+def firstGrouping(chosen_set):
+    #INITIALIZE ALL POSSIBLE GROUPS
+    groups = []
+    for num in range(IN_NUM + 1):
+        set = []
+        groups.append(set)
+
+    #LOCATE ONES IN MINTERMS AND ORGANIZE INTO GROUPS
+    for value in range(len(chosen_set)):
+        one_count = 0
+        for bit in range(len(chosen_set[value])):
+            if chosen_set[value][bit] == '1':
+                one_count = one_count + 1
+        groups[one_count].append([str(int(chosen_set[value], 2)), chosen_set[value]])
+    print(groups)
+    return groups   
+
+
+
+
+def otherGrouping(pairs_list):
+    #INITIALIZE ALL POSSIBLE GROUPS
+    new_groups = []
+    for num in range(IN_NUM + 1):
+        set = []
+        new_groups.append(set)
+    
+    #LOCATE ONES IN MINTERMS AND ORGANIZE INTO GROUPS
+    for pair in pairs_list:
+        one_count = 0
+        for bit in range(len(pair[1])):
+            if pair[1][bit] == '1':
+                one_count = one_count + 1
+        new_groups[one_count].append(pair)
+    print(new_groups)
+    return new_groups
+
 
 
 
