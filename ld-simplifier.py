@@ -1,6 +1,8 @@
+from glob import glob
 import math
 from re import L
 from tkinter import ACTIVE
+from tokenize import group
 
 
 IN_NUM = 0
@@ -8,6 +10,7 @@ OUT_NUM = 0
 OUTPUTS = []
 OUT_COLS = []
 ACTIVE_INS = []
+PRIME_IMPLICANTS = []
 
 
 def main():
@@ -98,14 +101,12 @@ def logicEquation():
         for value in range(len(ACTIVE_INS[group])):
             for bit in range(len(ACTIVE_INS[group][value])):
                 if ACTIVE_INS[group][value][bit] == '0':
-                    #Do shit
                     if (bit == len(ACTIVE_INS[group][value]) - 1):
                         print("In" + str(bit + 1) + "^   +   ", end = "")
                     else:
                         print("In" + str(bit + 1) + "^ ", end = "")
 
                 else:
-                    #Do the other shit
                     if (bit == len(ACTIVE_INS[group][value]) - 1):
                         print("In" + str(bit + 1) + "   +   ", end = "")
                     else:
@@ -114,6 +115,8 @@ def logicEquation():
         #print(ACTIVE_INS)
         #CALL SIMPLIFICATION FUNCTION HERE 
         quineMcCluskey(group)
+        global PRIME_IMPLICANTS
+        PRIME_IMPLICANTS.clear()
 
 
 
@@ -122,30 +125,16 @@ def logicEquation():
 def quineMcCluskey(group):
     #GROUP ACTIVE INPUTS BY # OF ONES
     groups = firstGrouping(ACTIVE_INS[group])
+    new_groups, break_cond = pairMatching(groups)
 
-    #BEGIN FINDING MATCHED PAIRS (FIRST MP)
-    diff_count = 0
-    matched_pairs = []
-    for each_group in range(len(groups)):
-        if (each_group == len(groups) - 1): #IF LAST GROUP, BREAK
+    while (break_cond != 1):
+        new_groups, break_cond = pairMatching(new_groups)
+        if break_cond == 1:
             break
-        else:
-            for val in range(len(groups[each_group])):
-                for next_val in range(len(groups[each_group + 1])):
-                    diff_count = 0
-                    for bit in range(len(groups[each_group][val][1])):
-                        if groups[each_group][val][1][bit] != groups[each_group + 1][next_val][1][bit]:
-                            diff_count = diff_count + 1
-                            stored_diff_bit = bit
-                    if diff_count == 1:
-                        replacement = groups[each_group][val][1][:stored_diff_bit]+'-'+groups[each_group][val][1][stored_diff_bit+1:]
-                        #matched_pairs.append([str(int(groups[each_group][val][1], 2)) + '-' + str(int(groups[each_group + 1][next_val][1], 2)), replacement])
-                        matched_pairs.append([groups[each_group][val][0] + '-' + groups[each_group + 1][next_val][0], replacement])
-                        #matched_pairs.append([new_groups[each_new_group][val][0] + '-' + new_groups[each_new_group + 1][next_val][0], replacement]) <-- Would this work?!
-    print(matched_pairs)
-    new_groups = otherGrouping(matched_pairs)
-    #CALL NEW MATCHED PAIRS FUNCTION OVER AND OVER AGAIN UNTIL NO MORE MATCHED PAIRS (OTHER MP (Lines 126 - 146)) ?? = otherMatchedPairs(new_groups)
-    #How is keeping track of the prime implicants of older matched pairs done?  
+
+    #REMOVE SUBSTRINGS (CONTIGUOUS AND NON-CONTIGUOUS) FOUND WITHIN PRIME IMPLICANTS (IDK IF THIS MESSES WITH ANYTHING YET, TEST WITHOUT DOING THIS FOR NOW)
+    print("Prime Implicants: {}".format(PRIME_IMPLICANTS))
+    primeImplication(group) 
 
 
 
@@ -165,7 +154,7 @@ def firstGrouping(chosen_set):
             if chosen_set[value][bit] == '1':
                 one_count = one_count + 1
         groups[one_count].append([str(int(chosen_set[value], 2)), chosen_set[value]])
-    print(groups)
+    print("First Grouping: {}".format(groups))
     return groups   
 
 
@@ -185,8 +174,88 @@ def otherGrouping(pairs_list):
             if pair[1][bit] == '1':
                 one_count = one_count + 1
         new_groups[one_count].append(pair)
-    print(new_groups)
+    print("New Groups: {}".format(new_groups))
     return new_groups
+
+
+
+def pairMatching(groups):
+    diff_count = 0
+    matched_pairs = []
+    none_used = 1
+    is_present = 0
+    for each_group in range(len(groups)):
+        if (each_group == len(groups) - 1): #IF LAST GROUP, BREAK
+            break
+        else:
+            for val in range(len(groups[each_group])):
+                used = 0
+                for next_val in range(len(groups[each_group + 1])):
+                    diff_count = 0
+                    for bit in range(len(groups[each_group][val][1])):
+                        if groups[each_group][val][1][bit] != groups[each_group + 1][next_val][1][bit]:
+                            diff_count = diff_count + 1
+                            stored_diff_bit = bit
+                    if diff_count == 1:
+                        used = 1
+                        none_used = 0
+                        replacement = groups[each_group][val][1][:stored_diff_bit]+'-'+groups[each_group][val][1][stored_diff_bit+1:]
+                        matched_pairs.append([groups[each_group][val][0] + '-' + groups[each_group + 1][next_val][0], replacement])
+                if used == 0:
+                    #ADD CHECK IF IMPLICANT IS ALREADY PRESENT, IF SO DONT ADD
+                    is_present = 0
+                    global PRIME_IMPLICANTS
+                    for element in range(len(PRIME_IMPLICANTS)):
+                        #print("why {} {}".format(groups[each_group][val][0], PRIME_IMPLICANTS[element][0]))
+                        if is_permutation(groups[each_group][val][0], PRIME_IMPLICANTS[element][0]): #DO NOT ADD EQUIVALANT PERMUTATIONS
+                            is_present = 1
+                    if is_present == 0:
+                        PRIME_IMPLICANTS.append(groups[each_group][val])
+
+    print("Matched Pairs: {}".format(matched_pairs))
+    new_groups = otherGrouping(matched_pairs)
+    return new_groups, none_used
+
+
+
+
+def is_permutation(first_string, other_string):
+    if len(first_string) != len(other_string):
+        return False
+
+    count_first = {}
+    count_other = {}
+
+    for char in first_string:
+        if char in count_first.keys():
+            count_first[char] += 1
+        else:
+            count_first[char] = 1
+
+    for char in other_string:
+        if char in count_other.keys():
+            count_other[char] += 1
+        else:
+            count_other[char] = 1
+
+    for char in count_first.keys():
+        if char not in count_other.keys():
+            return False
+        elif count_first[char] != count_other[char]:
+            return False
+
+    return True
+
+
+
+
+
+def primeImplication(group):
+    minterms = []
+    for i in range(len(ACTIVE_INS[group])):
+        minterms.append(int(ACTIVE_INS[group][i], 2))
+    print(minterms)
+    print("\n")
 
 
 
