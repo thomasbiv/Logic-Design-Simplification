@@ -4,6 +4,8 @@ from re import L
 from tkinter import ACTIVE
 from tokenize import group
 
+from numpy import subtract
+
 
 IN_NUM = 0
 OUT_NUM = 0
@@ -11,6 +13,7 @@ OUTPUTS = []
 OUT_COLS = []
 ACTIVE_INS = []
 PRIME_IMPLICANTS = []
+ESSENTIAL_PRIME_IMPLICANTS = []
 
 
 def main():
@@ -248,14 +251,85 @@ def is_permutation(first_string, other_string):
 
 
 
+def transpose(A):
+    result = [[A[j][i] for j in range(len(A))] for i in range(len(A[0]))]
+    return result
+
 
 
 def primeImplication(group):
     minterms = []
     for i in range(len(ACTIVE_INS[group])):
         minterms.append(int(ACTIVE_INS[group][i], 2))
+    i = 0
+
+    table = [['-'] * len(minterms) for i in range(len(PRIME_IMPLICANTS))]
+
+    #PRINT STARTING TABLE
     print(minterms)
+    for k in range(len(table)):
+        for l in range(len(table[k])):
+            if l == len(table[k]) - 1:
+                print(table[k][l])
+            else:
+                print(table[k][l] + ', ', end='')
     print("\n")
+
+    char = 0
+    for tuple in range(len(PRIME_IMPLICANTS)):
+        for char in range(len(PRIME_IMPLICANTS[tuple][0])):
+            for val in range(len(minterms)):
+                #print("Implicant Char: {}, Minterm Val: {}, ".format(PRIME_IMPLICANTS[tuple][0][char], str(minterms[val])))
+                if PRIME_IMPLICANTS[tuple][0][char] == str(minterms[val]):
+                    #print("please dont print 20 times uwu. tuple: {}, val: {}".format(tuple, val))
+                    table[tuple][val] = 'x' #<--
+                    #print(table)
+
+    #COMPLETION PRINT
+    print(minterms)
+    for m in range(len(table)):
+        for n in range(len(table[m])):
+            if n == len(table[m]) - 1:
+                print(table[m][n])
+            else:
+                print(table[m][n] + ', ', end='')
+    print("\n")
+
+    #FIND COLUMNS WITH ONLY ONE X, THEN FIND WHICH ROW X IS IN (THIS WILL GIVE INDEX OF USEFUL PRIME IMPLICANTS)
+    table_transpose = transpose(table)
+    print(table_transpose)
+    for it in range(len(table_transpose)):
+        x_count = 0
+        for it2 in range(len(table_transpose[it])):
+            if table_transpose[it][it2] == 'x':
+                x_count = x_count + 1
+                x_store = it2
+        if x_count == 1:
+            global ESSENTIAL_PRIME_IMPLICANTS
+            ESSENTIAL_PRIME_IMPLICANTS.append(PRIME_IMPLICANTS[x_store])
+    
+    print(ESSENTIAL_PRIME_IMPLICANTS)
+    simplifiedEquation(group)
+
+
+
+
+def simplifiedEquation(group):
+    global ESSENTIAL_PRIME_IMPLICANTS
+    for iter in range(len(ESSENTIAL_PRIME_IMPLICANTS)):
+        for bit in range(len(ESSENTIAL_PRIME_IMPLICANTS[iter][1])):
+            if ESSENTIAL_PRIME_IMPLICANTS[iter][1][bit] == '1':
+                print("In" + str(bit + 1), end='')
+                if bit == len(ESSENTIAL_PRIME_IMPLICANTS[iter][1]) - 1:
+                    print(" + ", end='')
+            elif ESSENTIAL_PRIME_IMPLICANTS[iter][1][bit] == '0':
+                print("In" + str(bit + 1) + "^", end='')
+                if bit == len(ESSENTIAL_PRIME_IMPLICANTS[iter][1]) - 1:
+                    print(" + ", end='')
+    ESSENTIAL_PRIME_IMPLICANTS.clear()
+    print(" = Out" + str(group + 1))
+    
+
 
 
 
