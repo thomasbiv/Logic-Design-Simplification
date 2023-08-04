@@ -8,34 +8,50 @@ OUT_NUM = 0
 OUTPUTS = []
 OUT_COLS = []
 ACTIVE_INS = []
+COMBO = 0
 
 
 def main():
     global IN_NUM
     global OUT_NUM
     global OUTPUTS
+    global COMBO
     print("Welcome to the Logic Design Simplifier!\n")
     print("Please enter the number of inputs: ")
     ins = input()
-    while int(ins) >= 10:
-        print("Logic with 10 inputs or greater is currently unsupported.")
-        print("Please enter the number of inputs: ")
+
+    while ins.isdigit() == False or int(ins) >= 10:
+        if ins.isdigit() == False:
+            print("Entry is invalid.")
+        elif int(ins) >= 10:
+            print("Logic with 10 inputs or greater is currently unsupported.")
+        print("Please reenter: ")
         ins = input()
+
     IN_NUM = int(ins)
     print("Please enter the number of outputs: ")
     outs = input()
+
+    while outs.isdigit() == False or int(outs) >= 10:
+        if outs.isdigit() == False:
+            print("Entry is invalid.")
+        elif int(outs) >= 10:
+            print("Logic with 10 outputs or greater is currently unsupported.")
+        print("Please reenter: ")
+        outs = input()
+
     OUT_NUM = int(outs)
-    combo = pow(2, IN_NUM)
-    OUT_COLS = [0] * combo
+    COMBO = pow(2, IN_NUM)
+    OUT_COLS = [0] * COMBO
     OUTPUTS = [OUT_COLS.copy() for i in range(OUT_NUM)]
     truthTable()
-    for set in range(combo):
+    for set in range(COMBO):
         print("Please enter the desired output(s) for input set " + str(set + 1) + ": ")
         for out in range(OUT_NUM):
             print("Out" + str(out + 1) + ": ", end = "")
             temp = input()
-            if (int(temp) < 0 or int(temp) > 1):
-                print("Invlid input. Outputs must be single bit binary values. Please Re-enter:")
+            while (not temp.isdigit() or int(temp) < 0 or int(temp) > 1):
+                print("Invalid input. Outputs must be single bit binary values. Please Re-enter:")
                 print("Out" + str(out + 1) + ": ", end = "")
                 temp = input()
             OUTPUTS[out][set] = int(temp)
@@ -56,11 +72,10 @@ def truthTable():
         else:
             print("|  Out" + str(out + 1) + "  |", end = "")
 
-    combos = pow(2, IN_NUM)
     bit = 0
 
     #TRUTH TABLE BODY
-    for row in range(combos):
+    for row in range(COMBO):
         binary = str(format(row, f"0{IN_NUM}b"))
         for inp in range(IN_NUM):
             print("|   " + str(binary[bit]) + "   |", end = "")
@@ -94,14 +109,14 @@ def logicEquation():
         for value in range(len(ACTIVE_INS[group])):
             for bit in range(len(ACTIVE_INS[group][value])):
                 if ACTIVE_INS[group][value][bit] == '0':
-                    #Do shit
+                    #NOT terms
                     if (bit == len(ACTIVE_INS[group][value]) - 1):
                         print("In" + str(bit + 1) + "^   +   ", end = "")
                     else:
                         print("In" + str(bit + 1) + "^ ", end = "")
 
                 else:
-                    #Do the other shit
+                    #terms
                     if (bit == len(ACTIVE_INS[group][value]) - 1):
                         print("In" + str(bit + 1) + "   +   ", end = "")
                     else:
