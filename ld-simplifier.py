@@ -57,6 +57,9 @@ def main():
             OUTPUTS[out][set] = int(temp)
         truthTable()
     logicEquation()
+    
+    for out in range(OUT_NUM):
+        grouping(ACTIVE_INS[out])
     #print(ACTIVE_INS)
     
 
@@ -122,6 +125,25 @@ def logicEquation():
                     else:
                         print("In" + str(bit + 1) + " ", end = "")
         print(" = Out" + str(group + 1))
+
+
+
+def grouping(ingroup):
+    one_cnt = 0
+    #print(ingroup)
+    group_array = []
+    for i in range(IN_NUM + 1):
+        group_array.append([])
+
+    for active_value in ingroup:
+        for integer in active_value:
+            if integer == '1':
+                one_cnt = one_cnt + 1
+        group_array[one_cnt].append(active_value)
+        one_cnt = 0
+    print(group_array)
+
+
 
 
 
