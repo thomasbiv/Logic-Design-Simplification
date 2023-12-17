@@ -58,8 +58,11 @@ def main():
         truthTable()
     logicEquation()
     
+    #Begin Quine-McCluskey Simplification
     for out in range(OUT_NUM):
-        grouping(ACTIVE_INS[out])
+        group_array = grouping(ACTIVE_INS[out])
+        print(group_array)
+
     #print(ACTIVE_INS)
     
 
@@ -141,9 +144,12 @@ def grouping(ingroup):
                 one_cnt = one_cnt + 1
         group_array[one_cnt].append(active_value)
         one_cnt = 0
-    print(group_array)
+    return group_array
 
 
+# def matched_pairs(group_array):
+#     for each_group in group_array:
+#         for each_value in each_group:
 
 
 
